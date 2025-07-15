@@ -1,0 +1,26 @@
+{
+	"FileVersion": 3,
+	"EngineAssociation": "{DBE0C7DA-4ECA-E29C-BB41-ABB1C4FD4DEB}",
+	"Category": "",
+	"Description": "",
+	"Modules": [
+		{
+			"Name": "TestControlFlow",
+			"Type": "Runtime",
+			"LoadingPhase": "Default"
+		}
+	],
+	"Plugins": [
+		{
+			"Name": "ModelingToolsEditorMode",
+			"Enabled": true,
+			"TargetAllowList": [
+				"Editor"
+			]
+		},
+		{
+			"Name": "ControlFlows",
+			"Enabled": true
+		}
+	]
+}
