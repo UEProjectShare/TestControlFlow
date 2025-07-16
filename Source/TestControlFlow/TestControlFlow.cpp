@@ -16,16 +16,42 @@ ATestControlFlows::ATestControlFlows()
 void ATestControlFlows::TestQueueStep()
 {
 	FControlFlow& Flow = FControlFlowStatics::Create(this, TEXT("TestQueueStep"))
-		.QueueStep(TEXT("ConstructNode"), this, &ThisClass::Construct)
-		.QueueStep(TEXT("Foo"), this, &ThisClass::Foo)
-		.QueueStep(TEXT("DestructNode"), this, &ThisClass::Destruct);
+	.QueueStep(TEXT("ConstructNode"), this, &ThisClass::Construct)
+	.QueueStep(TEXT("QueueStepFunction"), this, &ThisClass::QueueStepFunction)
+	.QueueStep(TEXT("DestructNode"), this, &ThisClass::Destruct);
 
 	Flow.ExecuteFlow();
 }
 
-void ATestControlFlows::Foo()
+void ATestControlFlows::QueueStepFunction()
 {
-	UE_LOG(LogTemp, Display, TEXT("ATestControlFlows::Foo"));
+	UE_LOG(LogTemp, Display, TEXT("ATestControlFlows::QueueStepFunction"));
+}
+
+void ATestControlFlows::TestQueueWait()
+{
+	FControlFlow& Flow = FControlFlowStatics::Create(this, TEXT("TestQueueWait"))
+	.QueueStep(TEXT("ConstructNode"), this, &ThisClass::Construct)
+	.QueueStep(TEXT("QueueWaitFunction"), this, &ThisClass::QueueWaitFunction)
+	.QueueStep(TEXT("DestructNode"), this, &ThisClass::Destruct);
+
+	Flow.ExecuteFlow();
+}
+
+void ATestControlFlows::QueueWaitFunction(FControlFlowNodeRef SubFlow)
+{
+	UE_LOG(LogTemp, Display, TEXT("ATestControlFlows::QueueWaitFunction"));
+
+	int32 Count = 0;
+	while (Count <= 10)
+	{
+		UE_LOG(LogTemp, Display, TEXT("ATestControlFlows::QueueWaitFunction Count: %d"), Count);
+		
+		Count++;
+		FPlatformProcess::Sleep(.5f);
+	}
+
+	SubFlow->ContinueFlow();
 }
 
 void ATestControlFlows::Construct()

@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "ControlFlowNode.h"
 #include "GameFramework/Actor.h"
 #include "TestControlFlow.generated.h"
 
@@ -20,9 +21,14 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "TestControlFlowsActor")
 	void TestQueueStep();
 
+	UFUNCTION(BlueprintCallable, Category = "TestControlFlowsActor")
+	void TestQueueWait();
+
 private:
 
-	void Foo();
+	void QueueStepFunction();
+	
+	void QueueWaitFunction(FControlFlowNodeRef SubFlow);
 
 	void Construct();
 
