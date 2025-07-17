@@ -54,6 +54,21 @@ void ATestControlFlows::QueueWaitFunction(FControlFlowNodeRef SubFlow)
 	SubFlow->ContinueFlow();
 }
 
+void ATestControlFlows::TestQueueControlFlow()
+{
+	FControlFlow& Flow = FControlFlowStatics::Create(this, TEXT("TestQueueControlFlow"))
+	.QueueStep(TEXT("ConstructNode"), this, &ThisClass::Construct)
+	.QueueStep(TEXT("QueueControlFlow"), this, &ThisClass::QueueControlFlow, 0, FString("TestQueueControlFlow"))
+	.QueueStep(TEXT("DestructNode"), this, &ThisClass::Destruct);
+
+	Flow.ExecuteFlow();
+}
+
+void ATestControlFlows::QueueControlFlow(TSharedRef<FControlFlow> FlowRef, int32 Param1, FString Param2)
+{
+	UE_LOG(LogTemp, Display, TEXT("ATestControlFlows::QueueControlFlow Param1:%d, Param2:%s"), Param1, *Param2);
+}
+
 void ATestControlFlows::Construct()
 {
 	UE_LOG(LogTemp, Display, TEXT("ATestControlFlows::Construct"));
