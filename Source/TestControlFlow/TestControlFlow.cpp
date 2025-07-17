@@ -2,6 +2,7 @@
 
 #include "TestControlFlow.h"
 #include "ControlFlowBranch.h"
+#include "ControlFlowConcurrency.h"
 #include "Modules/ModuleManager.h"
 #include "ControlFlowManager.h"
 
@@ -96,6 +97,30 @@ void ATestControlFlows::QueueControlFlowBranch2(int32 Param1, FString Param2)
 	UE_LOG(LogTemp, Display, TEXT("ATestControlFlows::QueueControlFlowBranch2 Param1:%d, Param2:%s"), Param1, *Param2);
 }
 
+void ATestControlFlows::TestQueueConcurrentFlows()
+{
+	FControlFlow& Flow = FControlFlowStatics::Create(this, TEXT("TestQueueControlFlowBranch"))
+	.QueueStep(TEXT("ConstructNode"), this, &ThisClass::Construct)
+	.ForkFlow([this](TSharedRef<FConcurrentControlFlows> ConcurrentFlows)
+	{
+		ConcurrentFlows->AddOrGetFlow(0).QueueStep(TEXT("QueueConcurrentFlows1"), this, &ThisClass::QueueConcurrentFlows1, 1, FString("QueueConcurrentFlows1"));
+		ConcurrentFlows->AddOrGetFlow(1).QueueStep(TEXT("QueueConcurrentFlows2"), this, &ThisClass::QueueConcurrentFlows2, 2, FString("QueueConcurrentFlows2"));
+	})
+	.QueueStep(TEXT("DestructNode"), this, &ThisClass::Destruct);
+	
+	Flow.ExecuteFlow();
+}
+
+void ATestControlFlows::QueueConcurrentFlows1(int32 Param1, FString Param2)
+{
+	UE_LOG(LogTemp, Display, TEXT("ATestControlFlows::QueueConcurrentFlows1 Param1:%d, Param2:%s"), Param1, *Param2);
+}
+
+void ATestControlFlows::QueueConcurrentFlows2(int32 Param1, FString Param2)
+{
+	UE_LOG(LogTemp, Display, TEXT("ATestControlFlows::QueueConcurrentFlows2 Param1:%d, Param2:%s"), Param1, *Param2);
+}
+
 void ATestControlFlows::Construct()
 {
 	UE_LOG(LogTemp, Display, TEXT("ATestControlFlows::Construct"));
@@ -105,4 +130,3 @@ void ATestControlFlows::Destruct()
 {
 	UE_LOG(LogTemp, Display, TEXT("ATestControlFlows::Destruct"));
 }
-
