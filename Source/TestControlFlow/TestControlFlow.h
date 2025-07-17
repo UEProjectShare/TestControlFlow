@@ -27,6 +27,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "TestControlFlowsActor")
 	void TestQueueControlFlow();
 
+	UFUNCTION(BlueprintCallable, Category = "TestControlFlowsActor")
+	void TestQueueControlFlowBranch();
+
 private:
 
 	void QueueStepFunction();
@@ -34,6 +37,10 @@ private:
 	void QueueWaitFunction(FControlFlowNodeRef SubFlow);
 	
 	void QueueControlFlow(TSharedRef<FControlFlow> FlowRef, int32 Param1, FString Param2);
+	
+	void QueueControlFlowBranch1(int32 Param1, FString Param2);
+	
+	void QueueControlFlowBranch2(int32 Param1, FString Param2);
 
 	void Construct();
 

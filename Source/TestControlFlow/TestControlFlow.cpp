@@ -1,6 +1,7 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
 #include "TestControlFlow.h"
+#include "ControlFlowBranch.h"
 #include "Modules/ModuleManager.h"
 #include "ControlFlowManager.h"
 
@@ -67,6 +68,32 @@ void ATestControlFlows::TestQueueControlFlow()
 void ATestControlFlows::QueueControlFlow(TSharedRef<FControlFlow> FlowRef, int32 Param1, FString Param2)
 {
 	UE_LOG(LogTemp, Display, TEXT("ATestControlFlows::QueueControlFlow Param1:%d, Param2:%s"), Param1, *Param2);
+}
+
+void ATestControlFlows::TestQueueControlFlowBranch()
+{
+	FControlFlow& Flow = FControlFlowStatics::Create(this, TEXT("TestQueueControlFlowBranch"))
+	.QueueStep(TEXT("ConstructNode"), this, &ThisClass::Construct)
+	.BranchFlow([this](TSharedRef<FControlFlowBranch> Branch)
+	{
+		Branch->AddOrGetBranch(1).QueueStep(TEXT("QueueControlFlowBranch1"), this, &ThisClass::QueueControlFlowBranch1, 1, FString("TestQueueControlFlowBranch1"));
+		Branch->AddOrGetBranch(2).QueueStep(TEXT("QueueControlFlowBranch2"), this, &ThisClass::QueueControlFlowBranch2, 2, FString("TestQueueControlFlowBranch2"));
+		
+		return FMath::RandBool() ? 1 : 2;
+	})
+	.QueueStep(TEXT("DestructNode"), this, &ThisClass::Destruct);
+	
+	Flow.ExecuteFlow();
+}
+
+void ATestControlFlows::QueueControlFlowBranch1(int32 Param1, FString Param2)
+{
+	UE_LOG(LogTemp, Display, TEXT("ATestControlFlows::QueueControlFlowBranch1 Param1:%d, Param2:%s"), Param1, *Param2);
+}
+
+void ATestControlFlows::QueueControlFlowBranch2(int32 Param1, FString Param2)
+{
+	UE_LOG(LogTemp, Display, TEXT("ATestControlFlows::QueueControlFlowBranch2 Param1:%d, Param2:%s"), Param1, *Param2);
 }
 
 void ATestControlFlows::Construct()
