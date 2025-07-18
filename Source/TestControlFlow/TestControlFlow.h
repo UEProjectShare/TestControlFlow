@@ -33,6 +33,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "TestControlFlowsActor")
 	void TestQueueConcurrentFlows();
 
+	UFUNCTION(BlueprintCallable, Category = "TestControlFlowsActor")
+	void TestQueueConditionalLoop();
+
 private:
 
 	void QueueStepFunction();
@@ -48,10 +51,14 @@ private:
 	void QueueConcurrentFlows1(int32 Param1, FString Param2);
 	
 	void QueueConcurrentFlows2(int32 Param1, FString Param2);
+	
+	void QueueConditionalLoop(int32 Param1, FString Param2);
 
 	void Construct();
 
 	void Destruct();
+
+	int32 LoopCounter = 0;
 
 #pragma endregion TestControlFlows
 };

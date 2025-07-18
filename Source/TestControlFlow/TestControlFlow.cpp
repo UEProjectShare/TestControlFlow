@@ -3,6 +3,7 @@
 #include "TestControlFlow.h"
 #include "ControlFlowBranch.h"
 #include "ControlFlowConcurrency.h"
+#include "ControlFlowConditionalLoop.h"
 #include "Modules/ModuleManager.h"
 #include "ControlFlowManager.h"
 
@@ -119,6 +120,44 @@ void ATestControlFlows::QueueConcurrentFlows1(int32 Param1, FString Param2)
 void ATestControlFlows::QueueConcurrentFlows2(int32 Param1, FString Param2)
 {
 	UE_LOG(LogTemp, Display, TEXT("ATestControlFlows::QueueConcurrentFlows2 Param1:%d, Param2:%s"), Param1, *Param2);
+}
+
+void ATestControlFlows::TestQueueConditionalLoop()
+{
+	FControlFlow& Flow = FControlFlowStatics::Create(this, TEXT("TestQueueConditionalLoop"))
+	.QueueStep(TEXT("ConstructNode"), this, &ThisClass::Construct)
+	//do while
+	.Loop([this](TSharedRef<FConditionalLoop> InnerLoop)
+	{
+		UE_LOG(LogTemp, Display, TEXT("ATestControlFlows::QueueConditionalLoop Loop1"));
+	
+		InnerLoop->RunLoopFirst().QueueStep(TEXT("QueueConditionalLoop"), this, &ThisClass::QueueConditionalLoop, 1, FString("QueueConditionalLoop"));
+		
+		return LoopCounter <= 10 ? EConditionalLoopResult::RunLoop : EConditionalLoopResult::LoopFinished;
+	})
+	//while
+	.Loop([this](TSharedRef<FConditionalLoop> InnerLoop)
+	{
+		UE_LOG(LogTemp, Display, TEXT("ATestControlFlows::QueueConditionalLoop Loop2"));
+		
+		InnerLoop->CheckConditionFirst().QueueStep(TEXT("QueueConditionalLoop"), this, &ThisClass::QueueConditionalLoop, 1, FString("QueueConditionalLoop"));
+		
+		return LoopCounter <= 10 ? EConditionalLoopResult::RunLoop : EConditionalLoopResult::LoopFinished;
+	})
+	.QueueStep(TEXT("DestructNode"), this, &ThisClass::Destruct);
+	
+	Flow.ExecuteFlow();
+}
+
+void ATestControlFlows::QueueConditionalLoop(int32 Param1, FString Param2)
+{
+	UE_LOG(LogTemp, Display, TEXT("ATestControlFlows::QueueConditionalLoop Param1:%d, Param2:%s"), Param1, *Param2);
+
+	LoopCounter++;
+	
+	FPlatformProcess::Sleep(.5f);
+
+	UE_LOG(LogTemp, Display, TEXT("ATestControlFlows::QueueConditionalLoop LoopCounter:%d"), LoopCounter);
 }
 
 void ATestControlFlows::Construct()
